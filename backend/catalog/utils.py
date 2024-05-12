@@ -25,7 +25,6 @@ def create_database_connection(connection):
 
             return conn,connection.platform.platform_id
         elif connection.platform.platform_id == 2:
-            print("this is mysql")
 
             connect_mysql = pymysql.connect(
                 host=connection.hostname,
@@ -37,7 +36,6 @@ def create_database_connection(connection):
 
             return connect_mysql,connection.platform.platform_id
         elif connection.platform.platform_id == 3:
-            print("this is MongoDB")
             client = MongoClient(os.getenv("DB_URL_MONGO"))
             db_mongo = client[connection.database_name]
             return db_mongo,connection.platform.platform_id
@@ -48,7 +46,6 @@ def create_database_connection(connection):
         return None,connection.platform.platform_id
 
 def fetch_table_names(db,platform_id):
-        print(db.database_name)
         if db is None:
             return []
         
@@ -60,7 +57,7 @@ def fetch_table_names(db,platform_id):
                 WHERE table_schema = %s 
                 AND table_type = 'BASE TABLE'
             """
-            schema = 'public' if platform_id == 1 else 'demo-django'
+            schema = 'public' if platform_id == 1 else os.getenv("DB_NAME_MYSQL")
             cursor.execute(query, [schema])
             table_names = cursor.fetchall()
             cursor.close()
@@ -261,7 +258,7 @@ def fetch_description(table_name, attr_id):
                 description = cursor.fetchone()
                 if description:
                     descriptions.append(description['description'])
-
+    
     except Exception as e:
         print(f"Error fetching attributes for table {table_name}: {e}")
         descriptions = []

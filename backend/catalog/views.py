@@ -60,7 +60,7 @@ def get_attributes_for_table(request, connection_id, table_name):
             attributes_list = [{
                 'attribute_id': attr_id,
                 'column_name': attr['column_name'],
-                'description': f"t{dess}",
+                'description': dess ,
                 'data_type': attr['data_type'],
                 'is_primary_key': attr['is_primary_key'],
                 'is_foreign_key': attr['is_foreign_key']
