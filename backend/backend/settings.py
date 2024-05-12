@@ -112,14 +112,29 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PWD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT"),
-    }
+        'NAME': os.getenv("DB_NAME_POSTGRES"),
+        'USER': os.getenv("DB_USER_POSTGRES"),
+        'PASSWORD': os.getenv("DB_PASSWORD_POSTGRES"),
+        'HOST': os.getenv("DB_HOST_POSTGRES"),
+        'PORT': os.getenv("DB_PORT_POSTGRES"),
+    },
+    'mysql': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv("DB_NAME_MYSQL"),
+        'USER': os.getenv("DB_USER_MYSQL"),
+        'PASSWORD': os.getenv("DB_PASSWORD_MYSQL"),
+        'HOST': os.getenv("DB_HOST_MYSQL"),
+        'PORT': os.getenv("DB_PORT_MYSQL"), 
+    },
+    'mongodb': {
+        'ENGINE': 'djongo',
+        'NAME': 'your-db-name',
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            'host': os.getenv("DB_URL_MONGO"), 
+        }
+    },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

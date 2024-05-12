@@ -9,38 +9,45 @@ function DataDictionary() {
   const { connection_id } = useParams();
   const [dataDictionary, setDataDictionary] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [saveButton, setSaveButton] = useState(false);
   const location = useLocation();
   const connectionDetails = location.state?.form;
 
   useEffect(() => {
-    console.log("Connection Details:", connectionDetails);
-
     const fetchDataDictionary = async () => {
-      const tablesResponse = await api.get(`/catalog/tables/${connection_id}`);
-
-      const promises = tablesResponse.data.tables.map((table) =>
-        api
-          .get(`/catalog/attributes/${connection_id}/${table.table_name}`)
-          .then((response) => ({
-            tableName: table.table_name,
-            attributes: response.data.attributes.map((attr) => ({
-              ...attr,
-              description: attr.description,
-              attribute_id: attr.attribute_id,
-            })),
-            error: !response.data.attributes,
-          }))
-      );
-      const results = await Promise.all(promises);
-      console.log(results);
-
-      setDataDictionary(results);
+      try {
+        const tablesResponse = await api.get(`/catalog/tables/${connection_id}`);
+        const newDataDictionary = await Promise.all(
+          tablesResponse.data.tables.map(async (table) => {
+            const attributesResponse = await api.get(`/catalog/attributes/${connection_id}/${table.table_name}`);
+            return {
+              tableName: table.table_name,
+              attributes: attributesResponse.data.attributes.map((attr) => ({
+                ...attr,
+                description: attr.description,
+                attribute_id: attr.attribute_id,
+              })),
+              error: !attributesResponse.data.attributes,
+            };
+          })
+        );
+        setDataDictionary(newDataDictionary);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
     fetchDataDictionary();
   }, [connection_id]);
 
-  // Function to generate and download PDF
+  useEffect(() => {
+    const hasNonEmptyDescription = dataDictionary.some((table) =>
+      table.attributes.some((attribute) => attribute.description.trim() !== "")
+    );
+
+    setSaveButton(hasNonEmptyDescription);
+  }, [dataDictionary]);
+
   const generatePDF = () => {
     const doc = new jsPDF("p", "pt", "a4");
     doc.html(document.querySelector(".data-dictionary"), {
@@ -54,42 +61,41 @@ function DataDictionary() {
     });
   };
 
-  // Function to handle Description change
   const handleDescriptionChange = (e, attr) => {
+    const newDescription = e.target.value;
+
     setDataDictionary((prevData) =>
       prevData.map((table) => ({
         ...table,
         attributes: table.attributes.map((a) =>
-          a === attr ? { ...a, description: e.target.value } : a
+          a.column_name === attr.column_name
+            ? { ...a, description: newDescription }
+            : a
         ),
       }))
     );
   };
 
-  // Function to handle data format change
   const handleSaveChanges = async () => {
-    setSaving(true);
-    try {
-      await Promise.all(
-        dataDictionary.flatMap((table, index) =>
-          table.attributes.map((attr) => {
-            const { attribute_id, column_name, description } = attr;
+      setSaving(true);
+      try {
+        const updatedAttributes = dataDictionary.flatMap((table) =>
+          table.attributes.filter((attr) => attr.description.trim() !== "")
+        );
 
-            if (description != "") {
-              return api.patch(`/catalog/update/${attribute_id}/`, {
-                description: description,
-              });
-            } else {
-              return;
-            }
+        await Promise.all(
+          updatedAttributes.map((attr) => {
+            const { attribute_id, description } = attr;
+            return api.patch(`/catalog/update/${attribute_id}/`, {
+              description: description,
+            });
           })
-        )
-      );
-    } catch (error) {
-      console.error("Error saving changes:", error);
-    } finally {
-      setSaving(false);
-    }
+        );
+      } catch (error) {
+        console.error("Error saving changes:", error);
+      } finally {
+        setSaving(false);
+      }
   };
 
   const auto_height = (elem) => {
@@ -125,7 +131,7 @@ function DataDictionary() {
         <div className="data-dictionary-button-container">
           <button
             onClick={handleSaveChanges}
-            disabled={saving}
+            disabled={saving || !saveButton}
             className="save-button"
           >
             {saving ? "Saving..." : "Save Changes"}
