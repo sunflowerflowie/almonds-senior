@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode"; // Correct import statement
 import api from "../api";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants";
 import { useState, useEffect } from "react";
@@ -12,17 +12,15 @@ function ProtectedRoute({ children }) {
     auth().catch(() => setIsAuthorized(false));
   }, []);
 
-  // Refresh AcessToken
+  // Refresh AccessToken
   const refreshToken = async () => {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN);
     try {
       const res = await api.post("/api/token/refresh/", {
-        // Send to backend
-        refresh: refreshToken,
+        refresh: refreshToken, // Send refresh token to backend
       });
       if (res.status === 200) {
-        // If Successful
-        localStorage.setItem(ACCESS_TOKEN, res.data.access);
+        localStorage.setItem(ACCESS_TOKEN, res.data.access); // Store new access token
         setIsAuthorized(true);
       } else {
         setIsAuthorized(false);
@@ -42,22 +40,22 @@ function ProtectedRoute({ children }) {
       return;
     }
 
-    const decoded = jwtDecode(token);
-    const tokenExpiration = decoded.exp;
-    const now = Date.now() / 1000;
+    const decoded = jwtDecode(token); // Decode JWT token
+    const tokenExpiration = decoded.exp; // Get token expiration time
+    const now = Date.now() / 1000; // Current time in seconds
 
     if (tokenExpiration < now) {
-      await refreshToken();
+      await refreshToken(); // Refresh token if expired
     } else {
-      setIsAuthorized(true);
+      setIsAuthorized(true); // Set authorized if token is valid
     }
   };
 
   if (isAuthorized === null) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; // Show loading indicator while checking auth status
   }
 
-  return isAuthorized ? children : <Navigate to="/login" />;
+  return isAuthorized ? children : <Navigate to="/login" />; // Redirect to login if not authorized
 }
 
 export default ProtectedRoute;

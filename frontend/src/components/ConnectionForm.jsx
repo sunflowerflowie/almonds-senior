@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 function ConnectionForm({ form, onDelete }) {
   const navigate = useNavigate();
 
-  // Directly navigate and pass the form data
+  // Navigate to the data catalog page and pass the form data as state
   const handleCatalogNavigation = () => {
     navigate(`/catalog/tables/${form.connection_id}`, { state: { form } });
   };

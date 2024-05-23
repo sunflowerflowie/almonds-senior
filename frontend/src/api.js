@@ -7,17 +7,15 @@ const api = axios.create({
 
 // Interceptor to add the token to request headers
 api.interceptors.request.use(
-  // Success
   (config) => {
     const token = localStorage.getItem(ACCESS_TOKEN); // Retrieve AccessToken
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // Add to headers
+      config.headers.Authorization = `Bearer ${token}`; // Add token to headers
     }
     return config;
   },
-  // Error
   (error) => {
-    console.log("ERROR");
+    console.log("ERROR"); // Log the error
     return Promise.reject(error);
   }
 );

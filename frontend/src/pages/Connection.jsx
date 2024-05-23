@@ -27,22 +27,24 @@ function Connection() {
     navigate(`/catalog/tables/${connection_id}`);
   }
 
+  // Fetch connection forms when the component mounts
   useEffect(() => {
     getConnection();
   }, []);
 
+  // Fetch platforms, roles, and department tags when the component mounts
   useEffect(() => {
-    // Fetch Plarforms
+    // Fetch Platforms
     api
       .get("/connection/platforms/")
       .then((response) => {
         setPlatforms(response.data);
-        console.log(response.data)
         if (response.data.length > 0) {
           setSelectedPlatform(response.data[0].platform_id);
         }
       })
       .catch((error) => console.error("Error fetching platforms:", error));
+    
     // Fetch Roles
     api
       .get("/connection/roles/")
@@ -63,38 +65,33 @@ function Connection() {
           setSelectedDepartmentTag(response.data[0].department_id);
         }
       })
-      .catch((error) =>
-        console.error("Error fetching department tags:", error)
-      );
+      .catch((error) => console.error("Error fetching department tags:", error));
   }, []);
 
-  // Get Connection Form
+  // Get the list of connection forms from the server
   const getConnection = () => {
     api
       .get("/connection/forms/")
-      .then((rest) => rest.data)
+      .then((response) => response.data)
       .then((data) => {
-        console.log("Form loaded", data); //
-        data.forEach((form) => console.log(form)); //
         setForms(data);
       })
       .catch((err) => alert(err));
   };
 
-  // Delete Connection Form
+  // Delete a connection form by its ID
   const deleteConnection = (connection_id) => {
-    console.log("Deleting connection with ID:", connection_id);
     api
       .delete(`/connection/forms/delete/${connection_id}/`)
       .then((res) => {
         if (res.status === 204) alert("Connection deleted!");
-        else alert("Failed to delete note.");
-        getConnection(); // Update screen
+        else alert("Failed to delete connection.");
+        getConnection(); // Refresh the list of connection forms
       })
       .catch((error) => alert(error));
   };
 
-  // Create Connection Form
+  // Create a new connection form
   const createConnection = (e) => {
     e.preventDefault();
     api
@@ -111,25 +108,22 @@ function Connection() {
       })
       .then((res) => {
         if (res.status === 201) alert("Connection Created!");
-        else alert("Failed to make connection.");
-        getConnection();
+        else alert("Failed to create connection.");
+        getConnection(); // Refresh the list of connection forms
       })
       .catch((err) => alert(err));
   };
 
   return (
     <div>
-      <div>
-        <Navbar />
-      </div>
-      <div className="content-container"></div>
-      <div>
+      <Navbar />
+      <div className="content-container">
         <h2>Connection Forms</h2>
         {forms.map((form) => (
           <ConnectionForm
             form={form}
-            onDelete={() => deleteConnection(form.connection_id)} //{deleteConnection}
-            onCatalog={() => handleShowTables(form.connection_id)}
+            onDelete={() => deleteConnection(form.connection_id)} // Delete the connection form
+            onCatalog={() => handleShowTables(form.connection_id)} // View the data catalog for the connection
             key={form.connection_id}
           />
         ))}
@@ -144,13 +138,13 @@ function Connection() {
           required
         >
           {platforms.map((platform) => (
-            <option key={platform.id} value={platform.id}>
-              {platform.platform_name}{" "}
+            <option key={platform.platform_id} value={platform.platform_id}>
+              {platform.platform_name}
             </option>
           ))}
         </select>
         <br />
-        <label htmlFor="platform">Responsibilities:</label>
+        <label htmlFor="role">Responsibilities:</label>
         <select
           id="role"
           value={selectedRole}
@@ -164,7 +158,7 @@ function Connection() {
           ))}
         </select>
         <br />
-        <label htmlFor="platform">Departments:</label>
+        <label htmlFor="department_tag">Departments:</label>
         <select
           id="department_tag"
           value={selectedDepartmentTag}
@@ -178,7 +172,7 @@ function Connection() {
           ))}
         </select>
         <br />
-        <label htmlFor="platform">Database Name:</label>
+        <label htmlFor="database_name">Database Name:</label>
         <input
           type="text"
           id="database_name"
@@ -189,7 +183,6 @@ function Connection() {
         />
         <br />
         <label htmlFor="hostname">Hostname:</label>
-        <br />
         <input
           type="text"
           id="hostname"
@@ -200,17 +193,16 @@ function Connection() {
         />
         <br />
         <label htmlFor="port">Port:</label>
-        <br />
         <input
           type="number"
           id="port"
           name="port"
           required
-          onChange={(e) => setPort(parseInt(e.target.value, 10))} //setPort(e.target.value)}
+          onChange={(e) => setPort(parseInt(e.target.value, 10))}
           value={port}
         />
-        <label htmlFor="username">Username:</label>
         <br />
+        <label htmlFor="username">Username:</label>
         <input
           type="text"
           id="username"
@@ -219,10 +211,10 @@ function Connection() {
           onChange={(e) => setUsername(e.target.value)}
           value={username}
         />
-        <label htmlFor="password">Password:</label>
         <br />
+        <label htmlFor="password">Password:</label>
         <input
-          type="text"
+          type="password"
           id="password"
           name="password"
           required
@@ -230,8 +222,7 @@ function Connection() {
           value={password}
         />
         <br />
-        <label htmlFor="description">Description</label>
-        <br />
+        <label htmlFor="description">Description:</label>
         <textarea
           id="description"
           name="description"

@@ -2,9 +2,8 @@ import { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
-import "../styles/Form.css"
+import "../styles/Form.css";
 import LoadingIndicator from "./LoadingIndicator";
-
 
 function Form({ route, method }) {
   const [username, setUsername] = useState("");
@@ -18,19 +17,19 @@ function Form({ route, method }) {
     setLoading(true);
     e.preventDefault();
 
-    try { 
-        const res = await api.post(route, { username, password })
-        if (method === "login") {
-            localStorage.setItem(ACCESS_TOKEN, res.data.access);
-            localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-            navigate("/")
-        } else {
-            navigate("/login")
-        }
+    try {
+      const res = await api.post(route, { username, password });
+      if (method === "login") {
+        localStorage.setItem(ACCESS_TOKEN, res.data.access); // Store access token
+        localStorage.setItem(REFRESH_TOKEN, res.data.refresh); // Store refresh token
+        navigate("/"); // Navigate to home page
+      } else {
+        navigate("/login"); // Navigate to login page after registration
+      }
     } catch (error) {
-        alert(error)
+      alert(error); // Display error message
     } finally {
-        setLoading(false)
+      setLoading(false); // Set loading state to false
     }
   };
 
@@ -51,7 +50,7 @@ function Form({ route, method }) {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
       />
-      {loading && <LoadingIndicator />}
+      {loading && <LoadingIndicator />} {/* Show loading indicator if loading */}
       <button className="form-button" type="submit">
         {name}
       </button>
@@ -59,4 +58,4 @@ function Form({ route, method }) {
   );
 }
 
-export default Form
+export default Form;

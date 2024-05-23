@@ -7,39 +7,42 @@ import jsPDF from "jspdf";
 
 function DataCatalog() {
   const [tables, setTables] = useState([]);
-  const { connection_id } = useParams();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const connectionDetails = location.state?.form;
+  const { connection_id } = useParams(); // Extract connection_id from URL parameters
+  const navigate = useNavigate(); // Hook to navigate programmatically
+  const location = useLocation(); // Hook to get the current location
+  const connectionDetails = location.state?.form; // Get connection details passed via state
 
   useEffect(() => {
+    // If no connection details are provided, navigate to home
     if (!connectionDetails) {
       console.log("No connection details provided, navigating to home.");
       navigate("/");
     }
 
+    // Fetch the tables for the given connection_id
     api
       .get(`/catalog/tables/${connection_id}`)
       .then((res) => {
         if (res.data.tables) {
-          setTables(res.data.tables);
+          setTables(res.data.tables); // Set the fetched tables in state
         } else {
           console.error("Error fetching tables:", res.data.error);
         }
       })
       .catch((error) => console.error("Error fetching tables:", error));
-  }, [connection_id]);
+  }, [connection_id, connectionDetails, navigate]);
 
+  // Function to navigate to the data dictionary page
   const navigateToDataDictionary = () => {
     navigate(`/data-dictionary/${connection_id}`);
   };
 
-  // Function to generate and download PDF
+  // Function to generate and download PDF of the data catalog
   const generatePDF = () => {
     const doc = new jsPDF("p", "pt", "a4");
     doc.html(document.querySelector(".data-catalog-container"), {
       callback: function (pdf) {
-        pdf.save("data-catalog.pdf");
+        pdf.save("data-catalog.pdf"); // Save the PDF with the specified filename
       },
       x: 10,
       y: 10,
@@ -51,7 +54,7 @@ function DataCatalog() {
   return (
     <div className="data-catalog-container">
       <div>
-        <Navbar />
+        <Navbar /> {/* Navbar component */}
       </div>
       <div className="content-container"></div>
       <header className="catalog-header">
@@ -91,7 +94,7 @@ function DataCatalog() {
       <section className="table-list">
         <ul>
           {tables.map((table, index) => (
-            <li key={index}>{table.table_name}</li>
+            <li key={index}>{table.table_name}</li> // Display the list of tables
           ))}
         </ul>
       </section>
