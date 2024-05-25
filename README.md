@@ -37,6 +37,7 @@ DATABASES = {
 }
 ```
 ## You need to care about '.env' file between two main folder (frontend and backend)
+Create by yourself in main folder.
 ### backend .env example:
 used with the settings.py
 ``` 
@@ -71,7 +72,7 @@ _**Don't forget to navigate to backend folder_
 $ python manage.py makemigrations
 $ python manage.py migrate
 ```
-### Reference for more information:
+## Reference for more information:
 **Back-end**
 1. [Django](https://docs.djangoproject.com/en/5.0/)
 
@@ -89,5 +90,5 @@ Data Overview|Lists each database's information and all tables within the databa
 Metadata|Displays metadata with a description field for each attribute to provide details.|:white_check_mark:
 Generate ER-Diagram|Generate an ER-diagram to show the relationships between data.|:x:
 
-### Demo
+## Demo
 https://youtu.be/E8xurB1a3dI
