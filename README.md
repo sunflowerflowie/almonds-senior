@@ -88,3 +88,6 @@ Data Catalog|Lists all database connection details for better exploration.|:whit
 Data Overview|Lists each database's information and all tables within the database.|:white_check_mark:
 Metadata|Displays metadata with a description field for each attribute to provide details.|:white_check_mark:
 Generate ER-Diagram|Generate an ER-diagram to show the relationships between data.|:x:
+
+### Demo
+https://youtu.be/E8xurB1a3dI
